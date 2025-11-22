@@ -14,10 +14,23 @@ const PORT = process.env.PORT || 3000;
 console.log(`🔧 Starting server on port: ${PORT}`);
 console.log(`🔧 PORT environment variable: ${process.env.PORT || 'not set (using default 3000)'}`);
 
-// Health check - MUST be FIRST, before all middleware including CORS
+// Request logging middleware - log ALL incoming requests
+app.use((req, res, next) => {
+  console.log(`📥 Incoming request: ${req.method} ${req.path}`);
+  console.log(`📥 Request headers:`, JSON.stringify(req.headers, null, 2));
+  next();
+});
+
+// Root route - simple test
+app.get('/', (req, res) => {
+  console.log('✅ Root route requested');
+  res.json({ message: 'SalatChecker API', status: 'running' });
+});
+
+// Health check - MUST be FIRST route, before all middleware including CORS
 // This ensures it works even if CORS or other middleware fails
 app.get('/health', (req, res) => {
-  console.log('✅ Health check requested');
+  console.log('✅ Health check requested - handler reached!');
   console.log('✅ Request origin:', req.headers.origin || 'no origin');
   try {
     const response = { 
@@ -102,6 +115,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`✅ Database: ${process.env.DB_HOST || 'not configured'}`);
   console.log(`✅ Server is ready to accept connections`);
+  console.log(`✅ Health endpoint available at: http://0.0.0.0:${PORT}/health`);
 }).on('error', (err) => {
   console.error('❌ Failed to start server:', err);
   process.exit(1);
@@ -111,6 +125,21 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 server.on('listening', () => {
   const addr = server.address();
   console.log(`✅ Server listening on ${addr.address}:${addr.port}`);
+  console.log(`✅ Server can accept connections from any interface`);
+});
+
+// Log connection events to see if Railway is connecting
+server.on('connection', (socket) => {
+  const clientInfo = `${socket.remoteAddress || 'unknown'}:${socket.remotePort || 'unknown'}`;
+  console.log(`🔌 New TCP connection from ${clientInfo}`);
+  
+  socket.on('close', () => {
+    console.log(`🔌 Connection closed: ${clientInfo}`);
+  });
+  
+  socket.on('error', (err) => {
+    console.error(`❌ Socket error from ${clientInfo}:`, err.message);
+  });
 });
 
 // Handle uncaught errors
