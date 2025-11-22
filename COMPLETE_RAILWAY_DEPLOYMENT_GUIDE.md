@@ -341,7 +341,8 @@ CREATE TABLE IF NOT EXISTS prayer_records (
 1. Go to your **Backend service** in Railway
 2. Click on **"Logs"** tab
 3. You should see: `Server running on port 3000`
-4. If you see errors, check the Troubleshooting section below
+4. **Note**: You might see a warning like `npm warn config production Use '--omit=dev' instead.` - This is **harmless** and can be ignored. It's just npm warning about a deprecated flag that Railway uses automatically.
+5. If you see actual errors (not warnings), check the Troubleshooting section below
 
 ### 8.2 Test Backend Health Endpoint
 
@@ -445,6 +446,16 @@ CREATE TABLE IF NOT EXISTS prayer_records (
    - Database connection failed
    - Missing JWT_SECRET
 4. Fix the issue and wait for auto-redeploy
+
+### Problem: "npm warn config production Use `--omit=dev` instead"
+
+**Cause**: This is just a warning from npm about a deprecated flag. Railway automatically uses `--production` flag when `NODE_ENV=production`.
+
+**Solution**: 
+- ✅ **This is completely harmless and can be ignored!**
+- Your application will work perfectly fine
+- This is just npm being pedantic about deprecated flags
+- Railway will update this in the future, but it doesn't affect functionality
 
 ---
 
