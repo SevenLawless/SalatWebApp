@@ -14,38 +14,11 @@ const PORT = process.env.PORT || 3000;
 console.log(`🔧 Starting server on port: ${PORT}`);
 console.log(`🔧 PORT environment variable: ${process.env.PORT || 'not set (using default 3000)'}`);
 
-// Middleware
-// CORS configuration - allow multiple origins for production
-const allowedOrigins = process.env.FRONTEND_URL 
-  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
-  : ['http://localhost:5173'];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list
-    if (allowedOrigins.some(allowed => origin === allowed || origin.startsWith(allowed))) {
-      callback(null, true);
-    } else {
-      // In development, allow localhost
-      if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    }
-  },
-  credentials: true
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Health check - MUST be before all other routes
-// This ensures it works even if routes fail to load
+// Health check - MUST be FIRST, before all middleware including CORS
+// This ensures it works even if CORS or other middleware fails
 app.get('/health', (req, res) => {
   console.log('✅ Health check requested');
+  console.log('✅ Request origin:', req.headers.origin || 'no origin');
   try {
     const response = { 
       status: 'ok', 
@@ -61,6 +34,43 @@ app.get('/health', (req, res) => {
     res.status(500).json({ status: 'error', message: error.message });
   }
 });
+
+// Middleware
+// CORS configuration - allow multiple origins for production
+const allowedOrigins = process.env.FRONTEND_URL 
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+  : ['http://localhost:5173'];
+
+// CORS configuration - more permissive for Railway
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, or direct browser requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Always allow Railway domains (for health checks, internal requests, etc.)
+    if (origin.includes('railway.app') || origin.includes('railway.internal')) {
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list (for frontend)
+    if (allowedOrigins.some(allowed => origin === allowed || origin.startsWith(allowed))) {
+      callback(null, true);
+    } else if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
+      // In development, allow localhost
+      callback(null, true);
+    } else {
+      // For API requests from frontend, still allow but log
+      console.log(`⚠️ CORS: Unknown origin ${origin}, but allowing for now`);
+      callback(null, true); // Changed to allow instead of reject for debugging
+    }
+  },
+  credentials: true
+}));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes - wrap in try-catch to prevent crashes
 try {
