@@ -1,0 +1,15 @@
+# Nixpacks configuration for Railway deployment
+# This file helps Railway detect and build your project correctly
+
+[phases.setup]
+nixPkgs = ["nodejs-18_x"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm run preview -- --host 0.0.0.0 --port $PORT"
+

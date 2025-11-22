@@ -1,6 +1,34 @@
 import { getToken, setToken, setUser, removeToken } from './auth.js';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+// Determine API base URL
+// In production, VITE_API_URL MUST be set via environment variable
+// In development, use localhost or VITE_API_URL if set
+const getApiBaseUrl = () => {
+  // If VITE_API_URL is explicitly set, use it
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // In production, warn if VITE_API_URL is not set
+  if (import.meta.env.PROD) {
+    console.error(
+      '⚠️ VITE_API_URL is not set! ' +
+      'Please set VITE_API_URL environment variable to your backend URL (e.g., https://your-backend.railway.app/api)'
+    );
+    // Try relative URL as fallback (only works if frontend and backend are on same domain)
+    return '/api';
+  }
+  
+  // Default to localhost for development
+  return 'http://localhost:3000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+// Log API URL in development for debugging
+if (import.meta.env.DEV) {
+  console.log('🔗 API Base URL:', API_BASE_URL);
+}
 
 // Create axios-like fetch wrapper
 const apiRequest = async (endpoint, options = {}) => {
