@@ -25,9 +25,10 @@ const getApiBaseUrl = () => {
 
 const API_BASE_URL = getApiBaseUrl();
 
-// Log API URL in development for debugging
-if (import.meta.env.DEV) {
-  console.log('🔗 API Base URL:', API_BASE_URL);
+// Log API URL for debugging (always log in production to help troubleshoot)
+console.log('🔗 API Base URL:', API_BASE_URL);
+if (!import.meta.env.VITE_API_URL && import.meta.env.PROD) {
+  console.warn('⚠️ WARNING: VITE_API_URL not set! Frontend will use relative URLs which may not work.');
 }
 
 // Create axios-like fetch wrapper
@@ -44,8 +45,34 @@ const apiRequest = async (endpoint, options = {}) => {
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    const data = await response.json();
+    const fullUrl = `${API_BASE_URL}${endpoint}`;
+    console.log(`🌐 Making request to: ${fullUrl}`);
+    
+    const response = await fetch(fullUrl, config);
+    
+    // Check if response has content before trying to parse JSON
+    const contentType = response.headers.get('content-type');
+    let data;
+    
+    if (contentType && contentType.includes('application/json')) {
+      const text = await response.text();
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          console.error('❌ JSON parse error:', parseError);
+          console.error('❌ Response text:', text);
+          throw new Error('Invalid JSON response from server');
+        }
+      } else {
+        data = {};
+      }
+    } else {
+      // Not JSON response
+      const text = await response.text();
+      console.error('❌ Non-JSON response:', text);
+      throw new Error(`Server returned non-JSON response: ${response.status} ${response.statusText}`);
+    }
 
     if (!response.ok) {
       // Handle 401 (unauthorized) - token expired or invalid
@@ -53,7 +80,7 @@ const apiRequest = async (endpoint, options = {}) => {
         removeToken();
         window.location.href = '/';
       }
-      throw new Error(data.error || 'Request failed');
+      throw new Error(data.error || `Request failed: ${response.status} ${response.statusText}`);
     }
 
     return data;
@@ -61,6 +88,7 @@ const apiRequest = async (endpoint, options = {}) => {
     if (error.message === 'Failed to fetch') {
       throw new Error('Network error. Please check your connection.');
     }
+    console.error('❌ API request error:', error);
     throw error;
   }
 };
