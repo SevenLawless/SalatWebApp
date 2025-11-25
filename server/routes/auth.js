@@ -1,5 +1,5 @@
 import express from 'express';
-import { createUser, findUserByPhone, verifyPassword, findUserById } from '../models/user.js';
+import { createUser, findUserByPhone, findUserById } from '../models/user.js';
 import jwt from 'jsonwebtoken';
 
 const router = express.Router();
@@ -7,19 +7,15 @@ const router = express.Router();
 // Sign up
 router.post('/signup', async (req, res) => {
   try {
-    const { username, phoneNumber, password } = req.body;
+    const { username, phoneNumber } = req.body;
     
     // Validation
-    if (!username || !phoneNumber || !password) {
-      return res.status(400).json({ error: 'All fields are required' });
+    if (!username || !phoneNumber) {
+      return res.status(400).json({ error: 'Username and phone number are required' });
     }
     
     if (username.trim().length < 2) {
       return res.status(400).json({ error: 'Username must be at least 2 characters' });
-    }
-    
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
     
     // Phone number validation (international format with country code)
@@ -35,7 +31,7 @@ router.post('/signup', async (req, res) => {
     }
     
     // Create user
-    const user = await createUser(username.trim(), phoneNumber.trim(), password);
+    const user = await createUser(username.trim(), phoneNumber.trim());
     
     // Generate JWT token
     const token = jwt.sign(
@@ -61,23 +57,17 @@ router.post('/signup', async (req, res) => {
 // Sign in
 router.post('/signin', async (req, res) => {
   try {
-    const { phoneNumber, password } = req.body;
+    const { phoneNumber } = req.body;
     
     // Validation
-    if (!phoneNumber || !password) {
-      return res.status(400).json({ error: 'Phone number and password are required' });
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required' });
     }
     
     // Find user
     const user = await findUserByPhone(phoneNumber.trim());
     if (!user) {
-      return res.status(401).json({ error: 'Invalid phone number or password' });
-    }
-    
-    // Verify password
-    const isValidPassword = await verifyPassword(password, user.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid phone number or password' });
+      return res.status(401).json({ error: 'Phone number not registered' });
     }
     
     // Generate JWT token

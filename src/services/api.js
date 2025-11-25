@@ -94,10 +94,10 @@ const apiRequest = async (endpoint, options = {}) => {
 };
 
 // Auth API
-export const signUp = async (username, phoneNumber, password) => {
+export const signUp = async (username, phoneNumber) => {
   const data = await apiRequest('/auth/signup', {
     method: 'POST',
-    body: JSON.stringify({ username, phoneNumber, password }),
+    body: JSON.stringify({ username, phoneNumber }),
   });
   
   setToken(data.token);
@@ -105,10 +105,10 @@ export const signUp = async (username, phoneNumber, password) => {
   return data;
 };
 
-export const signIn = async (phoneNumber, password) => {
+export const signIn = async (phoneNumber) => {
   const data = await apiRequest('/auth/signin', {
     method: 'POST',
-    body: JSON.stringify({ phoneNumber, password }),
+    body: JSON.stringify({ phoneNumber }),
   });
   
   setToken(data.token);

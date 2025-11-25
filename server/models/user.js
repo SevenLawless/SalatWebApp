@@ -1,12 +1,9 @@
 import pool from '../config/database.js';
-import bcrypt from 'bcryptjs';
 
-export const createUser = async (username, phoneNumber, password) => {
-  const hashedPassword = await bcrypt.hash(password, 10);
-  
+export const createUser = async (username, phoneNumber) => {
   const [result] = await pool.execute(
-    'INSERT INTO users (username, phoneNumber, password) VALUES (?, ?, ?)',
-    [username, phoneNumber, hashedPassword]
+    'INSERT INTO users (username, phoneNumber) VALUES (?, ?)',
+    [username, phoneNumber]
   );
   
   return {
@@ -33,9 +30,5 @@ export const findUserById = async (id) => {
   );
   
   return rows.length > 0 ? rows[0] : null;
-};
-
-export const verifyPassword = async (password, hashedPassword) => {
-  return await bcrypt.compare(password, hashedPassword);
 };
 

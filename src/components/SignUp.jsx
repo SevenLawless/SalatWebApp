@@ -8,9 +8,7 @@ import '../styles/App.css';
 const SignUp = () => {
   const [formData, setFormData] = useState({
     username: '',
-    phoneNumber: '',
-    password: '',
-    confirmPassword: ''
+    phoneNumber: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -56,24 +54,6 @@ const SignUp = () => {
       return;
     }
 
-    if (!formData.password) {
-      setError(t('error.passwordRequired'));
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError(t('error.passwordMinLength'));
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError(t('error.passwordsNotMatch'));
-      setLoading(false);
-      return;
-    }
-
     // Phone number validation (with country code)
     const phoneRegex = /^\+[1-9]\d{1,14}$/;
     if (!phoneRegex.test(formData.phoneNumber.trim())) {
@@ -83,7 +63,7 @@ const SignUp = () => {
     }
 
     try {
-      await signUp(formData.username.trim(), formData.phoneNumber.trim(), formData.password);
+      await signUp(formData.username.trim(), formData.phoneNumber.trim());
       navigate('/tracker');
     } catch (err) {
       setError(err.message || t('error.serverError'));
@@ -115,30 +95,6 @@ const SignUp = () => {
             <CountryCodeSelector
               value={formData.phoneNumber}
               onChange={handlePhoneChange}
-              disabled={loading}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">{t('signUp.password')}</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder={t('signUp.passwordPlaceholder')}
-              disabled={loading}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="confirmPassword">{t('signUp.confirmPassword')}</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder={t('signUp.confirmPasswordPlaceholder')}
               disabled={loading}
             />
           </div>

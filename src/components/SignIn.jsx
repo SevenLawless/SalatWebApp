@@ -7,8 +7,7 @@ import '../styles/App.css';
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
-    phoneNumber: '',
-    password: ''
+    phoneNumber: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,14 +41,8 @@ const SignIn = () => {
       return;
     }
 
-    if (!formData.password) {
-      setError(t('error.passwordRequired'));
-      setLoading(false);
-      return;
-    }
-
     try {
-      await signIn(formData.phoneNumber.trim(), formData.password);
+      await signIn(formData.phoneNumber.trim());
       navigate('/tracker');
     } catch (err) {
       setError(err.message || t('error.invalidCredentials'));
@@ -69,18 +62,6 @@ const SignIn = () => {
             <CountryCodeSelector
               value={formData.phoneNumber}
               onChange={handlePhoneChange}
-              disabled={loading}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">{t('signIn.password')}</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder={t('signIn.passwordPlaceholder')}
               disabled={loading}
             />
           </div>
