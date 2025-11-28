@@ -21,22 +21,12 @@ const PrayerCard = ({ prayerName, prayerTime, prayerState, onStateChange }) => {
     ? (prayerState ? 'prayed' : 'not_prayed')
     : (prayerState || 'not_prayed');
 
-  const cycleState = () => {
-    let nextState;
-    if (normalizedState === 'not_prayed') {
-      nextState = 'prayed';
-    } else if (normalizedState === 'prayed') {
-      nextState = 'missed';
-    } else {
-      nextState = 'not_prayed';
-    }
-    onStateChange(nextState);
+  const handlePrayedClick = () => {
+    onStateChange('prayed');
   };
 
-  const getStateIcon = () => {
-    if (normalizedState === 'prayed') return '✓';
-    if (normalizedState === 'missed') return '✗';
-    return '○';
+  const handleMissedClick = () => {
+    onStateChange('missed');
   };
 
   return (
@@ -45,17 +35,24 @@ const PrayerCard = ({ prayerName, prayerTime, prayerState, onStateChange }) => {
         <div className="prayer-name">{prayerNames[prayerName] || prayerName}</div>
         <div className="prayer-time">{prayerTime}</div>
       </div>
-      <button
-        className={`prayer-state-button prayer-state-${normalizedState}`}
-        onClick={cycleState}
-        aria-label={`Mark ${prayerNames[prayerName]} as ${normalizedState}`}
-        title={`انقر للتبديل: ${stateLabels[normalizedState]}`}
-      >
-        <span className="state-icon">{getStateIcon()}</span>
-        <span className="state-label">
-          {stateLabels[normalizedState]}
-        </span>
-      </button>
+      <div className="prayer-buttons-container">
+        <button
+          className={`prayer-action-button prayer-action-prayed ${normalizedState === 'prayed' ? 'active' : ''}`}
+          onClick={handlePrayedClick}
+          aria-label={`Mark ${prayerNames[prayerName]} as prayed`}
+          title={stateLabels.prayed}
+        >
+          <span className="action-icon">✓</span>
+        </button>
+        <button
+          className={`prayer-action-button prayer-action-missed ${normalizedState === 'missed' ? 'active' : ''}`}
+          onClick={handleMissedClick}
+          aria-label={`Mark ${prayerNames[prayerName]} as missed`}
+          title={stateLabels.missed}
+        >
+          <span className="action-icon">✗</span>
+        </button>
+      </div>
     </div>
   );
 };

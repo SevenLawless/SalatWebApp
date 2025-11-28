@@ -488,57 +488,70 @@ body {
   letter-spacing: 0.5px;
 }
 
-.prayer-state-button {
+.prayer-buttons-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 8px;
-  padding: 16px 24px;
-  border: none;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  align-items: center;
   min-width: 120px;
-  font-weight: 700;
-  font-size: 14px;
-  box-shadow: var(--shadow-sm);
+  justify-content: flex-end;
 }
 
-.prayer-state-button:hover {
+.prayer-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  font-size: 18px;
+  box-shadow: var(--shadow-sm);
+  min-width: 50px;
+  flex: 1;
+  max-width: 56px;
+}
+
+.prayer-action-button:hover {
   transform: scale(1.05);
   box-shadow: var(--shadow-md);
 }
 
-.prayer-state-button:active {
+.prayer-action-button:active {
   transform: scale(0.98);
 }
 
-.prayer-state-prayed {
+.prayer-action-prayed {
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.3), rgba(46, 204, 113, 0.3));
+  color: rgba(39, 174, 96, 0.7);
+  border: 2px solid rgba(39, 174, 96, 0.3);
+}
+
+.prayer-action-prayed.active {
   background: linear-gradient(135deg, #27ae60, #2ecc71);
   color: white;
+  border: 2px solid #27ae60;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
 }
 
-.prayer-state-missed {
+.prayer-action-missed {
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.3), rgba(192, 57, 43, 0.3));
+  color: rgba(231, 76, 60, 0.7);
+  border: 2px solid rgba(231, 76, 60, 0.3);
+}
+
+.prayer-action-missed.active {
   background: linear-gradient(135deg, #e74c3c, #c0392b);
   color: white;
+  border: 2px solid #e74c3c;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
 }
 
-.prayer-state-not_prayed {
-  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-  color: white;
-}
-
-.state-icon {
-  font-size: 32px;
+.action-icon {
+  font-size: 20px;
   font-weight: 700;
   line-height: 1;
-}
-
-.state-label {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: 0.95;
 }
 
 .loading {
@@ -875,6 +888,16 @@ body {
     width: 100%;
   }
 
+  .prayer-buttons-container {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .prayer-action-button {
+    max-width: none;
+    flex: 1;
+  }
+  
   .prayer-state-button {
     width: 100%;
   }
